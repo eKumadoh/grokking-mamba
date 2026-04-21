@@ -97,6 +97,44 @@ they decompose polysemantic neurons into monosemantic feature directions, lettin
 
 ---
 
+**Results**
+All experiments use p=97, train_frac=0.3, d_model=128, n_layers=1, 15,000 epochs.
+**1. Grokking**
+Both architectures exhibit clean grokking. With cosine LR scheduling and gradient clipping, both models generalise rapidly and stably — no post-grokking accuracy collapses.
+Model           Grokking Epoch         Linear Probe Acc  
+Mamba           240                    96.5%
+Transformer     221                    100.0%
+
+Grokking speed is comparable across architectures (~10% difference). Without training stabilisation (fixed LR, no gradient clipping), Mamba appeared to grok faster (ep 113) but repeatedly lost the generalising solution — confirming that the apparent speed advantage was an artifact of unstable optimisation rather than a property of the architecture.
+Show Image
+
+**2. Fourier Structure of Embeddings**
+To check whether both models learn the clock algorithm (Nanda et al. 2023), we project the token embedding matrix onto its top SVD components and inspect their FFT spectra. Clock-algorithm features produce sharp peaks at one or two frequencies.
+Mamba embeddings show sparse, sharp FFT peaks — typically one dominant frequency per SVD component. This is consistent with a compressed encoding of the clock algorithm in the recurrent state.
+Transformer embeddings show more diffuse spectra with energy spread across multiple frequencies, consistent with computation distributed across attention heads.
+Show Image
+Show Image
+
+**3. Linear Probing**
+A linear classifier trained on frozen residual-stream activations decodes (a+b) mod p with 100% accuracy for the Transformer and 96.5% for Mamba. Both results confirm that the answer is linearly accessible in the residual stream after grokking. The small gap suggests Mamba's recurrent state encodes the result with slightly more nonlinear entanglement than the Transformer's attention-based computation.
+
+**4. Sparse Autoencoder Features (Mamba)**
+A 4× overcomplete Sparse Autoencoder (512 features) trained on Mamba's layer-0 activations converges cleanly: reconstruction loss ~0, 0% dead features, ~30% feature sparsity at convergence.
+The top features (by activation frequency) show Fourier-structured activation patterns rather than class-selective responses — each feature fires for a specific frequency component of (a+b) mod p, not for individual residue classes. This is evidence that Mamba's recurrent state implements a Fourier-based algorithm analogous to the Transformer clock algorithm, but compressed into a fixed-size hidden state rather than distributed across attention heads.
+Show Image
+
+**5. Transformer Attention Patterns**
+All four attention heads in Layer 0 show near-identical patterns: the a token attends almost exclusively to itself (~1.0), and attention follows the causal staircase structure. This is consistent with the clock algorithm — a carries dominant Fourier structure from the first position, and all heads read it directly.
+Show Image
+
+Summary
+Finding                                Result 
+Does Mamba grok?                       Yes, at comparable speed to Transformers (~ep 240 vs 221)
+Does Mamba learn Fourier structure?    Yes — sparser and more compressed than the Transformer
+Is the answer linearly accessible?     Yes for both; Transformer perfectly (100%), Mamba nearly so (96.5%)
+What do SAE features encode?           Fourier frequency components, not residue classes
+Are the learned algorithms the same?   Functionally similar but structurally different — Transformer distributes across heads, Mamba compresses into recurrent state
+
 ## References
 
 - Power et al. (2022). *Grokking: Generalisation Beyond Overfitting on Small Algorithmic Datasets.*
