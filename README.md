@@ -101,9 +101,10 @@ they decompose polysemantic neurons into monosemantic feature directions, lettin
 All experiments use p=97, train_frac=0.3, d_model=128, n_layers=1, 15,000 epochs.
 **1. Grokking**
 Both architectures exhibit clean grokking. With cosine LR scheduling and gradient clipping, both models generalise rapidly and stably — no post-grokking accuracy collapses.
-Model           Grokking Epoch         Linear Probe Acc  
-Mamba           240                    96.5%
-Transformer     221                    100.0%
+|Model           |Grokking Epoch         |Linear Probe Acc|
+|----------------|-----------------------|----------------|
+|Mamba           |240                    |96.5%           |
+|Transformer     |221                    |100.0%          |
 
 Grokking speed is comparable across architectures (~10% difference). Without training stabilisation (fixed LR, no gradient clipping), Mamba appeared to grok faster (ep 113) but repeatedly lost the generalising solution — confirming that the apparent speed advantage was an artifact of unstable optimisation rather than a property of the architecture.
 Show Image
@@ -127,13 +128,14 @@ Show Image
 All four attention heads in Layer 0 show near-identical patterns: the a token attends almost exclusively to itself (~1.0), and attention follows the causal staircase structure. This is consistent with the clock algorithm — a carries dominant Fourier structure from the first position, and all heads read it directly.
 Show Image
 
-Summary
-Finding                                Result 
-Does Mamba grok?                       Yes, at comparable speed to Transformers (~ep 240 vs 221)
-Does Mamba learn Fourier structure?    Yes — sparser and more compressed than the Transformer
-Is the answer linearly accessible?     Yes for both; Transformer perfectly (100%), Mamba nearly so (96.5%)
-What do SAE features encode?           Fourier frequency components, not residue classes
-Are the learned algorithms the same?   Functionally similar but structurally different — Transformer distributes across heads, Mamba compresses into recurrent state
+**Summary**
+|Finding                                |Result                                                                                                                      |
+|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+|Does Mamba grok?                       |Yes, at comparable speed to Transformers (~ep 240 vs 221)                                                                   |
+|Does Mamba learn Fourier structure?    |Yes — sparser and more compressed than the Transformer                                                                      |
+|Is the answer linearly accessible?     |Yes for both; Transformer perfectly (100%), Mamba nearly so (96.5%)                                                         |
+|What do SAE features encode?           |Fourier frequency components, not residue classes                                                                           |
+|Are the learned algorithms the same?   |Functionally similar but structurally different — Transformer distributes across heads, Mamba compresses into recurrent state|
 
 ## References
 
