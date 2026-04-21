@@ -1,0 +1,6 @@
+{
+  "mamba_grokking_epoch": 240,
+  "transformer_grokking_epoch": 221,
+  "mamba_probe_acc": 0.9646017551422119,
+  "transformer_probe_acc": 1.0
+}
